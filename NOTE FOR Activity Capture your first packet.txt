@@ -1,0 +1,127 @@
+Task 1. Identify network interfaces
+sudo ifconfig
+
+Use this command to start
+
+sudo tcpdump -D
+Copied!
+This command will also allow you to identify which network interfaces are available. This may be useful on systems that do not include the ifconfig command.
+
+
+Task 2. Inspect the network traffic of a network interface with tcpdump
+
+sudo tcpdump -i eth0 -v -c5
+
+Now, let's take a detailed look at the packet information that this command has returned.
+
+This command will run tcpdump with the following options:
+
+-i eth0: Capture data specifically from the eth0 interface.
+-v: Display detailed packet data.
+-c5: Capture 5 packets of data.
+
+The specific packet data in your lab may be in a different order and may even be for entirely different types of network traffic. The specific details, such as system names, ports, and checksums, will definitely be different. You can run this command again to get different snapshots to outline how data changes between packets.
+
+
+The specific details, such as system names, ports, and checksums, will definitely be different. You can run this command again to get different snapshots to outline how data changes between packets.
+
+Exploring network packet details
+In this example, you’ll identify some of the properties that tcpdump outputs for the packet capture data you’ve just seen.
+
+In the example data at the start of the packet output, tcpdump reported that it was listening on the eth0 interface, and it provided information on the link type and the capture size in bytes:
+
+tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+
+2. On the next line, the first field is the packet's timestamp, followed by the protocol type, IP: 22:24:18.910372 IP
+
+
+3. The verbose option, -v, has provided more details about the IP packet fields, such as TOS, TTL, offset, flags, internal protocol type (in this case, TCP (6)), and the length of the outer IP packet in bytes:
+
+(tos 0x0, ttl 64, id 5802, offset 0, flags [DF], proto TCP (6), length 134)
+
+4. In the next section, the data shows the systems that are communicating with each other:
+
+7acb26dc1f44.5000 > nginx-us-east1-c.c.qwiklabs-terminal-vms-prod-00.internal.59788:
+
+By default, tcpdump will convert IP addresses into names, as in the screenshot. The name of your Linux virtual machine, also included in the command prompt, appears here as the source for one packet and the destination for the second packet. In your live data, the name will be a different set of letters and numbers.
+
+The direction of the arrow (>) indicates the direction of the traffic flow in this packet. Each system name includes a suffix with the port number (.5000 in the screenshot), which is used by the source and the destination systems for this packet.
+
+
+Task 3. Capture network traffic with tcpdump
+In this task, you will use tcpdump to save the captured network data to a packet capture file.
+
+Capture packet data into a file called capture.pcap:
+
+sudo tcpdump -i eth0 -nn -c9 port 80 -w capture.pcap &
+
+This command will run tcpdump in the background with the following options:
+
+-i eth0: Capture data from the eth0 interface.
+
+-nn: Do not attempt to resolve IP addresses or ports to names.This is best practice from a security perspective, as the lookup data may not be valid. It also prevents malicious actors from being alerted to an investigation.
+
+-c9: Capture 9 packets of data and then exit.
+
+port 80: Filter only port 80 traffic. This is the default HTTP port.
+
+-w capture.pcap: Save the captured data to the named file.
+
+&: This is an instruction to the Bash shell to run the command in the background.
+
+Task 4. Filter the captured packet data
+
+In this task, use tcpdump to filter data from the packet capture file you saved previously.
+
+Use the tcpdump command to filter the packet header data from the capture.pcap capture file:
+
+sudo tcpdump -nn -r capture.pcap -v
+
+This command will run tcpdump with the following options:
+
+-nn: Disable port and protocol name lookup.
+
+-r: Read capture data from the named file.
+
+-v: Display detailed packet data.
+
+
+ you can see the IP packet information along with information about the data that the packet contains.
+
+
+
+2. Use the tcpdump command to filter the extended packet data from the capture.pcap capture file:
+
+sudo tcpdump -nn -r capture.pcap -X
+
+This command will run tcpdump with the following options:
+
+-nn: Disable port and protocol name lookup.
+
+-r: Read capture data from the named file.
+
+-X: Display the hexadecimal and ASCII output format packet data. Security analysts can analyze hexadecimal and ASCII output to detect patterns or anomalies during malware analysis or forensic analysis.
+
+Note: Hexadecimal, also known as hex or base 16, uses 16 symbols to represent values, including the digits 0-9 and letters A, B, C, D, E, and F. American Standard Code for Information Interchange (ASCII) is a character encoding standard that uses a set of characters to represent text in digital form.
+
+
+NOTE:
+
+Test your understanding
+To test your ability to capture and view network data, answer the multiple-choice questions.
+
+Answer: Use the sudo tcpdump -c3 -i any -v.
+
+What does the -i option indicate?
+
+The -i option indicates the network interface to monitor.
+
+What type of information does the -v option include?
+
+Answer: The -v option provides verbose information.
+
+What tcpdump command can you use to identify the interfaces that are available to perform a packet capture on?
+
+Use the sudo tcpdump -D command.
+
+
